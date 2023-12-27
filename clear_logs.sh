@@ -1,32 +1,34 @@
 #!/bin/bash
 
-# XAMPP/LAMPP Apache logs directory
-logs_directory="/opt/lampp/logs"
+# Path for .err files
+ERR_PATH="/opt/lampp/var/mysql/"
+ERR_EXTENSION=".err"
 
-# Truncate access logs
-echo "Truncating access logs..."
-truncate -s 0 "${logs_directory}/access_log"
+# Path for _log and .log files
+LOG_PATH="/opt/lampp/logs/"
+LOG_EXTENSIONS=("_log" ".log")
 
-# Truncate error logs
-echo "Truncating error logs..."
-truncate -s 0 "${logs_directory}/error_log"
+# Function to truncate files
+truncate_files() {
+    local path=$1
+    local extension=$2
 
-# Truncate logs with a specific pattern (e.g., alumni-*-access.log)
-echo "Truncating domain-specific access logs..."
-for log_file in "${logs_directory}"/*-access.log; do
-  truncate -s 0 "${log_file}"
+    # Find files matching the given path and extension
+    files=$(find "$path" -type f -name "*$extension")
+
+    # Truncate each file to 10MB
+    for file in $files; do
+        truncate -s 10M "$file"
+        echo "Truncated $file to 10MB"
+    done
+}
+
+# Truncate .err files
+truncate_files "$ERR_PATH" "$ERR_EXTENSION"
+
+# Truncate _log and .log files
+for ext in "${LOG_EXTENSIONS[@]}"; do
+    truncate_files "$LOG_PATH" "$ext"
 done
 
-# Truncate php_error_log
-echo "Truncating php_error_log..."
-truncate -s 0 "${logs_directory}/php_error_log"
-
-# Truncate alumni-web.com-error.log
-echo "Truncating alumni-web.com-error.log..."
-truncate -s 0 "${logs_directory}/alumni-web.com-error.log"
-
-# Truncate ssl_request_log
-echo "Truncating ssl_request_log..."
-truncate -s 0 "${logs_directory}/ssl_request_log"
-
-echo "Logs truncated successfully!"
+## Create a Cron 0 * * * * /bin/bash /opt/BackUp/Script/truncate_files.sh
