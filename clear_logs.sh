@@ -31,4 +31,4 @@ for ext in "${LOG_EXTENSIONS[@]}"; do
     truncate_files "$LOG_PATH" "$ext"
 done
 
-## Create a Cron 0 * * * * /bin/bash /opt/BackUp/Script/truncate_files.sh
+## Create a Cron 0 * * * * /bin/bash /opt/BackUp/Script/clear_logs.sh
